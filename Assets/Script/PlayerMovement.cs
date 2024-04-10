@@ -1,12 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed; // Tốc độ di chuyển cơ bản
+    [SerializeField] 
+    public float walkSpeed; // Tốc độ đi bộ
+    [SerializeField]
+    public float sprintSpeed; // Tốc độ chạy
+    
+    private float moveSpeed; // Tốc độ di chuyển
 
     public float groundDrag; // Ma sát khi đang ở trên mặt đất
 
@@ -16,8 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool readyToJump; // Biến kiểm tra xem có thể nhảy hay không
 
-    [HideInInspector] public float walkSpeed; // Tốc độ đi bộ
-    [HideInInspector] public float sprintSpeed; // Tốc độ chạy
+    Animator animator;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space; // Phím nhảy mặc định là Space
@@ -40,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        animator = GetComponent<Animator>();
 
         readyToJump = true;
     }
@@ -51,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
 
         MyInput(); // Xử lý input từ người chơi
         SpeedControl(); // Kiểm soát tốc độ
+        Sprint();
 
         // Xử lý ma sát
         if (grounded)
@@ -62,6 +65,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer(); // Di chuyển người chơi
+        AnimatorController();
     }
 
     private void MyInput()
@@ -92,6 +96,16 @@ public class PlayerMovement : MonoBehaviour
         // Nếu không đang ở trên mặt đất
         else if (!grounded)
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+    }
+
+    private void Sprint()
+    {
+        moveSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed; // chuyển đổi tốc độ đi bộ và chạy
+    }
+
+    private void AnimatorController()
+    {
+        //IsWalking và IsRunning
     }
 
     private void SpeedControl()

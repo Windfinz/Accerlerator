@@ -48,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+
         // Kiểm tra xem có đang ở trên mặt đất hay không
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, whatIsGround);
 
@@ -65,13 +66,18 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer(); // Di chuyển người chơi
-        AnimatorController();
     }
 
     private void MyInput()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal"); // Nhận input ngang từ bàn phím
         verticalInput = Input.GetAxisRaw("Vertical"); // Nhận input dọc từ bàn phím
+
+        // Kiểm tra xem người chơi có đang di chuyển không
+        bool isMoving = horizontalInput != 0 || verticalInput != 0;
+
+        // Cập nhật biến trạng thái của Animator
+        animator.SetBool("IsWalking", isMoving);
 
         // Kiểm tra khi nào được phép nhảy
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
@@ -86,27 +92,53 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovePlayer()
     {
-        // Tính toán hướng di chuyển
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        // Lấy hướng của camera trên trục X và Z
+        Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+
+        // Tính toán hướng di chuyển dựa trên hướng của camera
+        moveDirection = cameraForward * verticalInput + Camera.main.transform.right * horizontalInput;
+
+        // Gán giá trị Y rotation của camera cho Y của player
+        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, Camera.main.transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
         // Nếu đang ở trên mặt đất
         if (grounded)
+        {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
-
+        }
         // Nếu không đang ở trên mặt đất
         else if (!grounded)
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
     }
 
+
+
+
     private void Sprint()
     {
-        moveSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed; // chuyển đổi tốc độ đi bộ và chạy
+        // Bỏ điều kiện kiểm tra `grounded`
+        if (Input.GetMouseButton(1) && readyToJump && grounded)
+        {
+            // Tạo một vector hướng dựa trên hướng của camera
+            Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+
+            // Tính toán hướng di chuyển
+            Vector3 moveDirection = cameraForward;
+
+            // Áp dụng tốc độ chạy
+            rb.velocity = moveDirection * sprintSpeed;
+            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsRunning", true);
+        }
+        else
+        {
+            moveSpeed = walkSpeed;
+            animator.SetBool("IsRunning", false);
+        }
     }
 
-    private void AnimatorController()
-    {
-        //IsWalking và IsRunning
-    }
+
+
 
     private void SpeedControl()
     {

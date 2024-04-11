@@ -28,7 +28,7 @@ public class PlayerCam : MonoBehaviour
         // Tính toán góc quay mới
         yRotation += mouseX;
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Giữ cho góc quay theo trục X không vượt quá -90 độ và 90 độ
+        xRotation = Mathf.Clamp(xRotation, -70f, 70f); // Giữ cho góc quay theo trục X không vượt quá -90 độ và 90 độ
 
         // Quay camera và hướng nhìn của người chơi
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);

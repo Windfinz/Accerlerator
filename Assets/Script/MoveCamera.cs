@@ -10,7 +10,7 @@ public class MoveCamera : MonoBehaviour
     private void Update()
     {
         transform.position = cameraPosition.position;
-        if (Input.GetMouseButton(1))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             transform.position = cameraPosition1.position;
         }

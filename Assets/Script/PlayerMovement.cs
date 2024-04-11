@@ -56,6 +56,15 @@ public class PlayerMovement : MonoBehaviour
         SpeedControl(); // Kiểm soát tốc độ
         Sprint();
 
+        if (grounded == true) 
+        {
+            animator.SetBool("IsGrounded", true);
+        }
+        else
+        {
+            animator.SetBool("IsGrounded", false);
+        }
+
         // Xử lý ma sát
         if (grounded)
             rb.drag = groundDrag; // Nếu đang ở trên mặt đất, sử dụng ma sát
@@ -85,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
             readyToJump = false; // Đặt trạng thái nhảy là false
 
             Jump(); // Thực hiện nhảy
+            animator.SetBool("IsJumping", true);
 
             Invoke(nameof(ResetJump), jumpCooldown); // Gọi hàm ResetJump sau thời gian jumpCooldown
         }
@@ -117,7 +127,7 @@ public class PlayerMovement : MonoBehaviour
     private void Sprint()
     {
         // Bỏ điều kiện kiểm tra `grounded`
-        if (Input.GetMouseButton(1) && readyToJump && grounded)
+        if (Input.GetKey(KeyCode.LeftShift) && readyToJump && grounded)
         {
             // Tạo một vector hướng dựa trên hướng của camera
             Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
@@ -127,7 +137,7 @@ public class PlayerMovement : MonoBehaviour
 
             // Áp dụng tốc độ chạy
             rb.velocity = moveDirection * sprintSpeed;
-            animator.SetBool("IsWalking", false);
+            animator.SetBool("IsWalking", true);
             animator.SetBool("IsRunning", true);
         }
         else
@@ -161,6 +171,8 @@ public class PlayerMovement : MonoBehaviour
     }
     private void ResetJump()
     {
+        animator.SetBool("IsJumping", false);
+
         readyToJump = true; // Đặt trạng thái nhảy là true
     }
 }
